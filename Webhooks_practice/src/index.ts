@@ -12,5 +12,4 @@ app.listen(PORT, async() => {
     logger.info(`Backend started at ${PORT}`);
 
     await connect();
-    //console.log(`Backend Started on ${PORT}`)
-})
+});

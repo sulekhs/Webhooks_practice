@@ -51,3 +51,4 @@ export type getEntryInput = TypeOf<typeof getEntrySchema>
 export type getAllEntriesInput = TypeOf<typeof getAllEntriesSchema>
 export type deleteEntryInput = TypeOf<typeof deleteEntrySchema>
 
+

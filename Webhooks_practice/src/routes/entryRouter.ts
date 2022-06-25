@@ -12,7 +12,7 @@ export class EntryRouter {
     
     
     routes(app: Application):void{
-        app.route("/api/callback").post(callBackHandler);
+        app.route("/api/callback/:entryId").put(callBackHandler);
         app.route("/api/getRecharges").get(getAllEntriesHandler);
         app.route("/api/getRechargeById/:id").get(getEntryHandler);
         app.route("/api/deleteRechargeById/:id").get(deleteEntryHandler);

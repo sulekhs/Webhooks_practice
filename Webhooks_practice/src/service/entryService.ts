@@ -2,14 +2,6 @@ import { DocumentDefinition, FilterQuery, QueryOptions, UpdateQuery } from "mong
 import Entry, { EntryDocument } from './../models/Entry';
 
 
-export async function createEntry(input: DocumentDefinition<Omit<EntryDocument, 'createdAt'| 'updatedAt'>>) {
-    try {
-        return await Entry.findOneAndUpdate(input);
-    } catch (e:any) {
-        throw new Error(e);
-    }
-};
-
 export async function createEntryRecharge(input: DocumentDefinition<Omit<EntryDocument, 'createdAt'| 'updatedAt'>>) {
     try {
         return await Entry.create(input);

@@ -1,38 +1,47 @@
 import { Request, Response } from "express";
 import logger from "../utils/logger";
-import { CreateEntryInput, deleteEntryInput, getAllEntriesInput, getEntryInput, updateEntryInput } from "../validation/entryValidation";
-import { createEntry, findEntry, findAllEntries, deleteEntry, createEntryRecharge, findAndUpdateEntry } from "../service/entryService";
+import { CreateEntryInput, deleteEntryInput, getEntryInput, updateEntryInput } from "../validation/entryValidation";
+import { findEntry, findAllEntries, deleteEntry, createEntryRecharge, findAndUpdateEntry } from "../service/entryService";
 import { UserDocument } from './../models/User';
 import fetch from "node-fetch";
 
+
+interface UpdateObj{
+    //status?: string | ParsedQs | string[] | ParsedQs[] | undefined;
+    status?:number | any;
+}
 
 //Callback Function Automatically Called when ThirdParty App or Admin Updates Status
 export async function callBackHandler(req:Request<updateEntryInput['params']>, res: Response) {
     try {
         console.log("Callback called Status Updated");
-        const entryID = req.body.yourId;
-        const status = {"status": req.body.status}
-        const body = req.body;
-        const entry = await createEntry({
-            ...body, entryId: entryID, ...status
-        });
-        return res.send(entry);
+        let entryId = req.params.entryId;
+        const findId = await findEntry({entryId});
+        if(findId){
+            const entryID = findId.entryId;
+            const updateObj:UpdateObj={};
+            updateObj.status = req.body.status;
+            const entry = await findAndUpdateEntry(
+                {entryId: entryID}, updateObj, {new: true}
+            );
+            return res.send(entry);
+        }
     } catch (e:any) {
         logger.error(e);
-        return res.status(401).send(e.message);
+        return res.status(500).send(e.message);
     }
 }
 
 //Get All Entries of Recharges
 export async function getAllEntriesHandler(req:Request, res: Response) {
     
-    const entry = await findAllEntries();
-
-    if (!entry) {
-        return res.sendStatus(404);
+    try {
+        const entry = await findAllEntries();
+        return res.send(entry);
+    } catch (e: any) {
+        logger.error(e);
+        return res.status(500).send(e.message);
     }
-
-    return res.send(entry);
 };
 
 
@@ -42,13 +51,7 @@ export async function createEntryHandler(req: Request<updateEntryInput['params']
         let user!: UserDocument;
         const body = req.body;
         const entryID = Math.floor(Math.random() * (100000000 - 1 + 1)) + 1;
-        const update = req.body;
-        // const entryTable = await findEntry({entryID});
-
-        // if (!entryTable) {
-        //     return res.sendStatus(404);
-        // }
-
+        
         const entry = await createEntryRecharge({
             ...body, entryId: entryID,
             user: user
@@ -61,35 +64,26 @@ export async function createEntryHandler(req: Request<updateEntryInput['params']
                 return result.json();
             }).then(async result => {
                 console.log(result);
-                const updatedEntry = await findAndUpdateEntry({entryID}, update, { new: true }
-                ).then(found => {
-                    if (found) {
-                        console.log("updated");
-                    }
-                });
-                
-                return res.send(updatedEntry);
             })
         })
         
         return res.send(entry);
     } catch (e:any) {
         logger.error(e);
-        return res.status(401).send(e.message);
+        return res.status(500).send(e.message);
     }
 }
 
 //Get Particular REntry of Recaharge
 export async function getEntryHandler(req:Request<getEntryInput['params']>, res: Response) {
-    
-    const entryId = req.params.entryId;
-    const entry = await findEntry({entryId});
-
-    if (!entry) {
-        return res.sendStatus(404);
+    try {
+        const entryId = req.params.entryId;
+        const entry = await findEntry({entryId});
+        return res.send(entry);
+    } catch (e: any) {
+        logger.error(e);
+        return res.status(500).send(e.message);
     }
-
-    return res.send(entry);
 };
 
 
@@ -114,7 +108,7 @@ export async function deleteEntryHandler(req:Request<deleteEntryInput['params']>
         return res.sendStatus(200);
     } catch (e:any) {
         logger.error(e);
-        return res.status(401).send(e.message)
+        return res.status(500).send(e.message)
     }
 }
 
