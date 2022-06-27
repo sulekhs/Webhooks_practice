@@ -12,7 +12,7 @@ export class UserController {
         this.UserService = new UserService();
     }
 
-    async createUserHandler(req: Request<{}, {}, CreateUserInput["body"]>, res: Response) {
+    createUserHandler:any = async (req: Request<{}, {}, CreateUserInput["body"]>, res: Response) {
         try {
             const user = await this.UserService.createUser(req.body);
             return res.send(omit(user.toJSON(), "password"));
