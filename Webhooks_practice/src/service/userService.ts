@@ -4,7 +4,8 @@ import User, { UserDocument } from "../models/User";
 export class UserService {
     async createUser(users: DocumentDefinition<Omit<UserDocument, 'createdAt'| 'updatedAt'| 'comparePassword'>>) {
         try {
-            return await User.create(users);
+            const newUser = await User.create(users);
+            return newUser;
         } catch (e:any) {
             throw new Error(e);
         }
@@ -28,6 +29,7 @@ export class UserService {
     }
     
     async login(query:FilterQuery<UserDocument>) {
-        return User.findOne(query).lean();
+        const user = User.findOne(query).lean();
+        return user;
     }
 }
